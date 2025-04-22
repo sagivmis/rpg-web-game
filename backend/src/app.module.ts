@@ -6,10 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { User, UserSchema } from './schemas/user.schema';
 import { Player, PlayerSchema } from './schemas/player.schema';
 import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
+console.log('Connecting to MongoDB:', process.env.MONGODB_URI);
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/game'),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/game',
+    ),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Player.name, schema: PlayerSchema },
@@ -21,5 +25,6 @@ import { AppController } from './app.controller';
     AuthModule,
   ],
   controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
