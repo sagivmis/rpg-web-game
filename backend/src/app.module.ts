@@ -8,7 +8,6 @@ import { Player, PlayerSchema } from './schemas/player.schema';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-console.log('Connecting to MongoDB:', process.env.MONGODB_URI);
 @Module({
   imports: [
     MongooseModule.forRoot(
