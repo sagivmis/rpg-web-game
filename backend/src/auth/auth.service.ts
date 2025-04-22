@@ -28,7 +28,10 @@ export class AuthService {
       password: hashed,
     });
 
-    const player = await this.playerModel.create({ user: user._id });
+    const player = await this.playerModel.create({
+      user: user._id,
+      resources: { food: 500, wood: 500, stone: 300, gold: 200 },
+    });
 
     const token = this.jwtService.sign({ userId: user._id });
     return { token, username: user.username, playerId: player._id };

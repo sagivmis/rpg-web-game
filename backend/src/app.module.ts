@@ -7,6 +7,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { Player, PlayerSchema } from './schemas/player.schema';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AppService } from './app.service';
       signOptions: { expiresIn: '24h' },
     }),
     AuthModule,
+    PlayerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
