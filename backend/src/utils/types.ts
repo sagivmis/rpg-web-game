@@ -6,3 +6,7 @@ export type ErrorReply = {
 };
 
 export type FReply = ErrorReply | SuccessReply;
+
+export type ResourceType = 'food' | 'wood' | 'stone' | 'gold';
+
+export type Resources = Record<ResourceType, number>;
