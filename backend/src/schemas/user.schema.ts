@@ -6,8 +6,8 @@ export class User extends Document {
   @Prop({ unique: true }) username!: string;
   @Prop({ unique: true }) email!: string;
   @Prop() password!: string;
-  @Prop({ default: () => Date.now() }) createdAt!: Date;
-  @Prop({ default: () => Date.now() }) lastLogin!: Date;
+  @Prop({ default: () => new Date() }) createdAt!: Date;
+  @Prop({ default: () => new Date() }) lastLogin!: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
