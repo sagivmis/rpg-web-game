@@ -8,6 +8,9 @@ import { Player, PlayerSchema } from './schemas/player.schema';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PlayerModule } from './player/player.module';
+import { BuildingService } from './building/building.service';
+import { BuildingController } from './building/building.controller';
+import { BuildingModule } from './building/building.module';
 
 @Module({
   imports: [
@@ -24,8 +27,9 @@ import { PlayerModule } from './player/player.module';
     }),
     AuthModule,
     PlayerModule,
+    BuildingModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, BuildingController],
+  providers: [AppService, BuildingService],
 })
 export class AppModule {}
