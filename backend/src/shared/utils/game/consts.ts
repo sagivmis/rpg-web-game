@@ -1,4 +1,5 @@
 import { BuildingCatalog, BuildingData, BuildingEnum } from "../types";
+import { UnitStats, UnitType } from "../types/units.types";
 
 export const BUILDING_CATALOG: BuildingCatalog = {
   [BuildingEnum.FARM]: {
@@ -50,5 +51,26 @@ export const BUILDING_CATALOG: BuildingCatalog = {
     type: "research",
     level: 1,
     upgradeCost: { food: 50, wood: 50 },
+  },
+};
+
+export const UNIT_CATALOG: Record<UnitType, UnitStats> = {
+  [UnitType.INFANTRY]: {
+    cost: { food: 50, gold: 10 },
+    attack: 5,
+    defense: 4,
+    speed: 2,
+  },
+  [UnitType.ARCHER]: {
+    cost: { food: 60, wood: 20, gold: 15 },
+    attack: 7,
+    defense: 2,
+    speed: 3,
+  },
+  [UnitType.CAVALRY]: {
+    cost: { food: 120, gold: 40 },
+    attack: 10,
+    defense: 6,
+    speed: 5,
   },
 };

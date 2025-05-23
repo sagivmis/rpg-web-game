@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Building, BuildingEnum, Resources } from '../shared/utils/types';
+import { UnitType } from '../shared/utils/types/units.types';
 
 @Schema()
 export class Player extends Document {
@@ -23,6 +24,17 @@ export class Player extends Document {
     default: [], // optional: default to no buildings
   })
   buildings!: Building[];
+
+  @Prop({
+    type: [
+      {
+        type: { type: String, enum: UnitType, required: true },
+        count: { type: Number, default: 0 },
+      },
+    ],
+    default: [],
+  })
+  army!: { type: UnitType; count: number }[];
 
   @Prop({ default: Date.now })
   lastTick!: Date;
