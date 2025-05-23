@@ -12,7 +12,8 @@ import { BuildingService } from './building/building.service';
 import { BuildingController } from './building/building.controller';
 import { BuildingModule } from './building/building.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { IncomeService } from './income/income.service';
+import { IncomeService } from './economy/income.service';
+import { EconomyModule } from './economy/economy.module';
 
 @Module({
   imports: [
@@ -29,8 +30,10 @@ import { IncomeService } from './income/income.service';
       signOptions: { expiresIn: '24h' },
     }),
     AuthModule,
+    EconomyModule,
     PlayerModule,
     BuildingModule,
+    EconomyModule,
   ],
   controllers: [AppController, BuildingController],
   providers: [AppService, BuildingService, IncomeService],
