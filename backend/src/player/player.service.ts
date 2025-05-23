@@ -106,7 +106,8 @@ export class PlayerService {
     });
     if (!player) throw new Error('Player not found');
 
-    const building = player.buildings.find((b) => b.type === type);
+    const cleanType = type.replace(/^['"]|['"]$/g, '');
+    const building = player.buildings.find((b) => b.type === cleanType);
     if (!building) throw new Error('Building not owned');
 
     const buildingData = this.buildingService.getBuildingData(type);
@@ -116,19 +117,25 @@ export class PlayerService {
       building.level,
     );
 
-    for (const [res, cost] of Object.entries(buildingData.cost)) {
-      if (isResourceKey(res)) {
-        const finalCost = Math.floor(cost * costMultiplier);
-        if (player.resources[res] < finalCost) {
-          throw new Error(`Not enough ${res}`);
+    try {
+      for (const [res, cost] of Object.entries(buildingData.cost)) {
+        if (isResourceKey(res)) {
+          const finalCost = Math.floor(cost * costMultiplier);
+          if (player.resources[res] < finalCost) {
+            throw new Error(`Not enough ${res}`);
+          }
         }
       }
-    }
-    for (const [res, cost] of Object.entries(buildingData.cost)) {
-      if (isResourceKey(res)) {
-        const finalCost = Math.floor(cost * costMultiplier);
-        player.resources[res] -= finalCost;
+      for (const [res, cost] of Object.entries(buildingData.cost)) {
+        if (isResourceKey(res)) {
+          const finalCost = Math.floor(cost * costMultiplier);
+          player.resources[res] -= finalCost;
+        }
       }
+    } catch (err: any) {
+      const cost = await this.getUpgradeCost(userId, type);
+
+      return { message: err.message, cost, resources: player.resources };
     }
 
     building.level++;
@@ -136,18 +143,26 @@ export class PlayerService {
     return player;
   }
 
+  stripCostZeros(
+    obj: Partial<Record<ResourceType, number>>,
+  ): Partial<Record<ResourceType, number>> {
+    const cost = Object.entries(obj).filter(
+      ([resource, val], index) => val !== 0,
+    );
+
+    return Object.fromEntries(cost);
+  }
+
   async getUpgradeCost(
     userId: string,
     type: BuildingType,
-  ): Promise<Record<ResourceType, number>> {
+  ): Promise<Partial<Record<ResourceType, number>>> {
     const player = await this.playerModel.findOne({
       user: new Types.ObjectId(userId),
     });
     if (!player) throw new Error('Player not found');
 
     const building = player.buildings.find((b) => b.type === type);
-    console.log(type);
-    console.log(player.buildings);
     if (!building) throw new Error('Building not owned');
 
     const buildingData = this.buildingService.getBuildingData(type);
@@ -165,6 +180,6 @@ export class PlayerService {
       cost[res as ResourceType] = Math.floor(baseCost * multiplier);
     }
 
-    return cost;
+    return this.stripCostZeros(cost);
   }
 }
