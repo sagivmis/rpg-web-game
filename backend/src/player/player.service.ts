@@ -5,6 +5,8 @@ import { Model, Types } from 'mongoose';
 import { isResourceKey } from '../utils';
 import { BuildingType, Resources, ResourceType } from '../shared/utils/types';
 import { BuildingService } from '../building/building.service';
+import { BUILDING_CATALOG } from '../shared/utils/game/consts';
+import { calculateTotalIncome } from '../shared/utils/game';
 
 @Injectable()
 export class PlayerService {
@@ -19,33 +21,47 @@ export class PlayerService {
     });
     if (!player) throw new Error('Player not found');
 
-    const now = new Date();
-    const minutesPassed = Math.floor(
-      ((now.getTime() - player.lastTick.getTime()) / 60000) * 60,
-    );
-    const TICK_INTERVAL = 1;
+    // const now = new Date();
+    // const minutesPassed = Math.floor(
+    //   ((now.getTime() - player.lastTick.getTime()) / 60000) * 60,
+    // );
+    // const TICK_INTERVAL = 1;
 
-    const ticks = Math.floor(minutesPassed / TICK_INTERVAL);
-    if (minutesPassed >= TICK_INTERVAL) {
-      const gainPerTick: Resources = { food: 10, wood: 8, stone: 5, gold: 3 };
+    // const ticks = Math.floor(minutesPassed / TICK_INTERVAL);
+    // if (minutesPassed >= TICK_INTERVAL) {
+    //   const gainPerTick: Resources = { food: 10, wood: 8, stone: 5, gold: 3 };
 
-      for (const [key, value] of Object.entries(gainPerTick)) {
-        if (isResourceKey(key)) {
-          player.resources[key] += value * ticks;
-        }
-      }
+    //   for (const [key, value] of Object.entries(gainPerTick)) {
+    //     if (isResourceKey(key)) {
+    //       player.resources[key] += value * ticks;
+    //     }
+    //   }
 
-      player.markModified('resources');
-      player.lastTick = now;
-      console.log(player.resources);
+    //   player.markModified('resources');
+    //   player.lastTick = now;
+    //   console.log(player.resources);
 
-      await player.save();
-    }
+    //   await player.save();
+    // }
+
+    const income = calculateTotalIncome(player.buildings, BUILDING_CATALOG);
 
     return {
       resources: player.resources,
+      income,
       lastTick: player.lastTick,
-      ticks,
+      // ticks,
+    };
+  }
+
+  async getBuildings(userId: string) {
+    const player = await this.playerModel.findOne({
+      user: new Types.ObjectId(userId),
+    });
+    if (!player) throw new Error('Player not found');
+
+    return {
+      buildings: player.buildings,
     };
   }
 
@@ -60,16 +76,20 @@ export class PlayerService {
 
     // Check if player has enough resources
     for (const [res, cost] of Object.entries(buildingData.cost)) {
-      if ((player.resources as any)[res] < cost) {
-        throw new Error(`Not enough ${res}`);
+      if (isResourceKey(res)) {
+        if (player.resources[res] < cost) {
+          throw new Error(`Not enough ${res}`);
+        }
       }
     }
     // Deduct cost
     for (const [res, cost] of Object.entries(buildingData.cost)) {
-      (player.resources as any)[res] -= cost;
+      if (isResourceKey(res)) {
+        player.resources[res] -= cost;
+      }
     }
 
-    player.buildings.push({ type, level: 1 });
+    player.buildings.push(BUILDING_CATALOG[type]);
     await player.save();
 
     return {
@@ -81,7 +101,9 @@ export class PlayerService {
   }
 
   async upgradeBuilding(userId: string, type: BuildingType) {
-    const player = await this.playerModel.findOne({ userId });
+    const player = await this.playerModel.findOne({
+      user: new Types.ObjectId(userId),
+    });
     if (!player) throw new Error('Player not found');
 
     const building = player.buildings.find((b) => b.type === type);
@@ -118,10 +140,14 @@ export class PlayerService {
     userId: string,
     type: BuildingType,
   ): Promise<Record<ResourceType, number>> {
-    const player = await this.playerModel.findOne({ userId });
+    const player = await this.playerModel.findOne({
+      user: new Types.ObjectId(userId),
+    });
     if (!player) throw new Error('Player not found');
 
     const building = player.buildings.find((b) => b.type === type);
+    console.log(type);
+    console.log(player.buildings);
     if (!building) throw new Error('Building not owned');
 
     const buildingData = this.buildingService.getBuildingData(type);

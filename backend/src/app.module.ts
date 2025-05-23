@@ -11,9 +11,12 @@ import { PlayerModule } from './player/player.module';
 import { BuildingService } from './building/building.service';
 import { BuildingController } from './building/building.controller';
 import { BuildingModule } from './building/building.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { IncomeService } from './income/income.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     MongooseModule.forRoot(
       process.env.MONGODB_URI || 'mongodb://localhost:27017/game',
     ),
@@ -30,6 +33,6 @@ import { BuildingModule } from './building/building.module';
     BuildingModule,
   ],
   controllers: [AppController, BuildingController],
-  providers: [AppService, BuildingService],
+  providers: [AppService, BuildingService, IncomeService],
 })
 export class AppModule {}

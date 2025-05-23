@@ -13,14 +13,16 @@ export enum BuildingEnum {
 export interface Building {
   type: BuildingType;
   displayName: string;
-  cost: Resources;
+  cost: BuildingCost;
   buildTime: number; // in minutes
   description?: string;
   level: number;
-  upgrageCost: Resources;
+  upgradeCost: BuildingCost;
+  incomeBonus: BuildingIncome;
+  upgradeMultiplier: number;
 }
 
-export type BuildingCatalog = Record<BuildingEnum, BuildingData>;
+export type BuildingCatalog = Record<BuildingEnum, Building>;
 
 export type BuildingCost = Partial<Record<ResourceType, number>>;
 

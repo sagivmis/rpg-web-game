@@ -20,6 +20,11 @@ export class BuildingController {
     private readonly playerService: PlayerService,
   ) {}
 
+  @Get('')
+  async getBuildings(@Req() req: any) {
+    return this.playerService.getBuildings(req.user.userId);
+  }
+
   @Get('catalog')
   getCatalog() {
     return this.buildingService.getCatalog();
