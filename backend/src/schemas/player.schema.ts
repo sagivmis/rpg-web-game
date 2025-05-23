@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { BuildingEnum, Resources } from '../shared/utils/types';
+import { Building, BuildingEnum, Resources } from '../shared/utils/types';
 
 @Schema()
 export class Player extends Document {
@@ -22,7 +22,7 @@ export class Player extends Document {
     ],
     default: [], // optional: default to no buildings
   })
-  buildings!: { type: string; level: number }[];
+  buildings!: Building[];
 
   @Prop({ default: Date.now })
   lastTick!: Date;
