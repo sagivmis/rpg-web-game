@@ -1,4 +1,9 @@
-import { BuildingCatalog, BuildingData, BuildingEnum } from "../types";
+import {
+  BuildingCatalog,
+  BuildingData,
+  BuildingEnum,
+  UnitCatalog,
+} from "../types";
 import { UnitStats, UnitType } from "../types/units.types";
 
 export const BUILDING_CATALOG: BuildingCatalog = {
@@ -54,7 +59,7 @@ export const BUILDING_CATALOG: BuildingCatalog = {
   },
 };
 
-export const UNIT_CATALOG: Record<UnitType, UnitStats> = {
+export const UNIT_CATALOG: UnitCatalog = {
   [UnitType.INFANTRY]: {
     cost: { food: 50, gold: 10 },
     attack: 5,

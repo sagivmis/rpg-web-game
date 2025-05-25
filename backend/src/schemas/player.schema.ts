@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Building, BuildingEnum, Resources } from '../shared/utils/types';
+import { Army, Building, BuildingEnum, Resources } from '../shared/utils/types';
 import { UnitType } from '../shared/utils/types/units.types';
 
 @Schema()
@@ -34,7 +34,7 @@ export class Player extends Document {
     ],
     default: [],
   })
-  army!: { type: UnitType; count: number }[];
+  army!: Army;
 
   @Prop({ default: Date.now })
   lastTick!: Date;

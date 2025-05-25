@@ -15,6 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { IncomeService } from './economy/income.service';
 import { EconomyModule } from './economy/economy.module';
 import { ArmyModule } from './army/army.module';
+import { BattleModule } from './battle/battle.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ArmyModule } from './army/army.module';
     PlayerModule,
     BuildingModule,
     EconomyModule,
+    BattleModule,
   ],
   controllers: [AppController, BuildingController],
   providers: [AppService, BuildingService, IncomeService],

@@ -48,18 +48,21 @@ export class ArmyService {
       player.resources[res as ResourceType] -= cost;
     }
 
-    // Add to army or update existing
-    const existing = player.army.find((u) => u.type === type);
-    if (existing) {
-      existing.count += count;
+    // Add or update army
+    if (!player.army) {
+      player.army = { [type]: count };
     } else {
-      player.army.push({ type, count });
+      if (player.army[type]) {
+        player.army[type] += count;
+      } else {
+        player.army[type] = count;
+      }
     }
 
     player.markModified('resources');
     player.markModified('army');
     await player.save();
 
-    return player;
+    return player.army;
   }
 }
