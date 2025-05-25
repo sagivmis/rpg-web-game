@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { ArmyService } from './army.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UnitType } from '../shared/utils/types/units.types';
@@ -14,5 +14,10 @@ export class ArmyController {
     @Body() body: { type: UnitType; count: number },
   ) {
     return this.armyService.recruitUnit(req.user.userId, body.type, body.count);
+  }
+
+  @Get('')
+  async get(@Req() req: any) {
+    return this.armyService.getArmy(req.user.userId);
   }
 }

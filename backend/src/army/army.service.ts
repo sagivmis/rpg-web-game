@@ -10,6 +10,14 @@ import { Player } from '../schemas/player.schema';
 export class ArmyService {
   constructor(@InjectModel(Player.name) private playerModel: Model<Player>) {}
 
+  async getArmy(userId: string) {
+    const player = await this.playerModel.findOne({
+      user: new Types.ObjectId(userId),
+    });
+    if (!player) throw new Error('Player not found');
+
+    return { army: player.army };
+  }
   async recruitUnit(userId: string, type: UnitType, count: number) {
     const player = await this.playerModel.findOne({
       user: new Types.ObjectId(userId),
