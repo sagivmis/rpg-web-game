@@ -16,6 +16,7 @@ import { IncomeService } from './economy/income.service';
 import { EconomyModule } from './economy/economy.module';
 import { ArmyModule } from './army/army.module';
 import { BattleModule } from './battle/battle.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { BattleModule } from './battle/battle.module';
     BuildingModule,
     EconomyModule,
     BattleModule,
+    AdminModule,
   ],
   controllers: [AppController, BuildingController],
   providers: [AppService, BuildingService, IncomeService],
