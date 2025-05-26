@@ -26,6 +26,7 @@ export class AuthService {
       username: dto.username,
       email: dto.email,
       password: hashed,
+      role: dto.role ?? 'player',
     });
 
     const player = await this.playerModel.create({
@@ -33,7 +34,14 @@ export class AuthService {
       resources: { food: 500, wood: 500, stone: 300, gold: 200 },
     });
 
-    const token = this.jwtService.sign({ userId: user._id });
+    const payload = {
+      sub: user._id,
+      username: user.username,
+      role: user.role,
+    };
+
+    const token = this.jwtService.sign(payload);
+
     return { token, username: user.username, playerId: player._id };
   }
 
@@ -47,7 +55,11 @@ export class AuthService {
     if (!match) throw new Error('Invalid credentials');
 
     const player = await this.playerModel.findOne({ user: user._id });
-    const token = this.jwtService.sign({ userId: user._id });
+    const token = this.jwtService.sign({
+      sub: user._id,
+      username: user.username,
+      role: user.role,
+    });
 
     if (player) return { token, username: user.username, playerId: player._id };
     else return { '404': 'Not found' };
