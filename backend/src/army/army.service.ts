@@ -5,10 +5,14 @@ import { UnitType } from '../shared/utils/types/units.types';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Player } from '../schemas/player.schema';
+import { LogService } from '../log/log.service';
 
 @Injectable()
 export class ArmyService {
-  constructor(@InjectModel(Player.name) private playerModel: Model<Player>) {}
+  constructor(
+    @InjectModel(Player.name) private playerModel: Model<Player>,
+    private readonly logService: LogService,
+  ) {}
 
   async getArmy(userId: string) {
     const player = await this.playerModel.findOne({
@@ -39,9 +43,28 @@ export class ArmyService {
     // Validate resources
     for (const [res, cost] of Object.entries(totalCost)) {
       if ((player.resources as any)[res] < cost) {
+        this.logService.log(
+          `recruit unit${count > 1 ? 's' : ''} failed, not enough ${res}`,
+          {
+            userId,
+            unitType: type,
+            count,
+            resources: player.resources,
+            cost: totalCost,
+            missingResource: res,
+          },
+        );
         throw new Error(`Not enough ${res}`);
       }
     }
+
+    this.logService.log(`recruit unit${count > 1 ? 's' : ''} successful`, {
+      userId,
+      unitType: type,
+      count,
+      resources: player.resources,
+      cost: totalCost,
+    });
 
     // Deduct resources
     for (const [res, cost] of Object.entries(totalCost)) {

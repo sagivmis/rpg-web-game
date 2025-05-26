@@ -5,14 +5,17 @@ import { Model } from 'mongoose';
 import { Player } from '../schemas/player.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { isResourceKey, isUnitKey } from '../utils';
+import { LogService } from '../log/log.service';
 
 @Injectable()
 export class BattleService {
   constructor(
     @InjectModel(Player.name)
     private readonly playerModel: Model<Player>,
+    private readonly logService: LogService,
   ) {}
   async attackPlayer(attackerId: string, targetId: string) {
+    this.logService.log('initiate attack', { attackerId, targetId });
     const attacker = await this.playerModel.findOne({ user: attackerId });
     const defender = await this.playerModel.findOne({ user: targetId });
     if (!attacker || !defender)
@@ -40,6 +43,15 @@ export class BattleService {
         }
       }
     }
+
+    this.logService.log('attack ended', {
+      attackerId,
+      targetId,
+      result,
+      loot,
+      attackerPower,
+      defenderPower,
+    });
 
     attacker.markModified('army');
     attacker.markModified('resources');
