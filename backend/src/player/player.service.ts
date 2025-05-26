@@ -7,12 +7,14 @@ import { BuildingType, Resources, ResourceType } from '../shared/utils/types';
 import { BuildingService } from '../building/building.service';
 import { BUILDING_CATALOG } from '../shared/utils/game/consts';
 import { calculateTotalIncome } from '../shared/utils/game';
+import { LogService } from '../log/log.service';
 
 @Injectable()
 export class PlayerService {
   constructor(
     @InjectModel(Player.name) private playerModel: Model<Player>,
     private readonly buildingService: BuildingService,
+    private readonly logService: LogService,
   ) {}
 
   async getStats(userId: string) {
@@ -66,6 +68,8 @@ export class PlayerService {
   }
 
   async constructBuilding(userId: string, type: BuildingType) {
+    this.logService.log('initiate building construction', { userId, type });
+
     const player = await this.playerModel.findOne({
       user: new Types.ObjectId(userId),
     });
@@ -78,10 +82,24 @@ export class PlayerService {
     for (const [res, cost] of Object.entries(buildingData.cost)) {
       if (isResourceKey(res)) {
         if (player.resources[res] < cost) {
+          this.logService.log('failed building construction', {
+            userId,
+            type,
+            missingResource: res,
+            resources: player.resources,
+            cost: buildingData.cost,
+          });
           throw new Error(`Not enough ${res}`);
         }
       }
     }
+    this.logService.log('building construction successful', {
+      userId,
+      type,
+      resources: player.resources,
+      cost: buildingData.cost,
+    });
+
     // Deduct cost
     for (const [res, cost] of Object.entries(buildingData.cost)) {
       if (isResourceKey(res)) {
@@ -101,6 +119,8 @@ export class PlayerService {
   }
 
   async upgradeBuilding(userId: string, type: BuildingType) {
+    this.logService.log('initiate building upgrade', { userId, type });
+
     const player = await this.playerModel.findOne({
       user: new Types.ObjectId(userId),
     });
@@ -122,10 +142,25 @@ export class PlayerService {
         if (isResourceKey(res)) {
           const finalCost = Math.floor(cost * costMultiplier);
           if (player.resources[res] < finalCost) {
+            this.logService.log('failed building upgrade', {
+              userId,
+              type,
+              missingResource: res,
+              resources: player.resources,
+              cost: buildingData.cost,
+            });
             throw new Error(`Not enough ${res}`);
           }
         }
       }
+
+      this.logService.log('building upgrade successful', {
+        userId,
+        type,
+        resources: player.resources,
+        cost: buildingData.cost,
+      });
+
       for (const [res, cost] of Object.entries(buildingData.cost)) {
         if (isResourceKey(res)) {
           const finalCost = Math.floor(cost * costMultiplier);

@@ -17,6 +17,9 @@ import { EconomyModule } from './economy/economy.module';
 import { ArmyModule } from './army/army.module';
 import { BattleModule } from './battle/battle.module';
 import { AdminModule } from './admin/admin.module';
+import { Log, LogSchema } from './schemas/log.schema';
+import { LogService } from './log/log.service';
+import { LogModule } from './log/log.module';
 
 @Module({
   imports: [
@@ -25,6 +28,7 @@ import { AdminModule } from './admin/admin.module';
       process.env.MONGODB_URI || 'mongodb://localhost:27017/game',
     ),
     MongooseModule.forFeature([
+      { name: Log.name, schema: LogSchema },
       { name: User.name, schema: UserSchema },
       { name: Player.name, schema: PlayerSchema },
     ]),
@@ -33,6 +37,7 @@ import { AdminModule } from './admin/admin.module';
       signOptions: { expiresIn: '24h' },
     }),
     AuthModule,
+    LogModule,
     EconomyModule,
     ArmyModule,
     PlayerModule,
@@ -40,8 +45,9 @@ import { AdminModule } from './admin/admin.module';
     EconomyModule,
     BattleModule,
     AdminModule,
+    LogModule,
   ],
   controllers: [AppController, BuildingController],
-  providers: [AppService, BuildingService, IncomeService],
+  providers: [AppService, BuildingService, IncomeService, LogService],
 })
 export class AppModule {}
