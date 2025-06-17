@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UNIT_CATALOG } from '../shared/utils/game';
-import { Army, UnitCatalog } from '../shared/utils/types';
+import { Army, UnitCatalog, UnitType } from '../shared/utils/types';
 import { Model } from 'mongoose';
 import { Player } from '../schemas/player.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -71,25 +71,27 @@ export class BattleService {
   calculateArmyPower(army: Army) {
     let power = 0;
 
-    const armyEntries = Object.entries(army);
-    for (const [unit, count] of armyEntries) {
-      if (isUnitKey(unit)) {
-        const stats = UNIT_CATALOG[unit];
-        power += stats.attack * count;
+    for (const unit of army) {
+      if (isUnitKey(unit.type)) {
+        const stats = UNIT_CATALOG[unit.type];
+        power += stats.attack * unit.count;
       }
     }
     return power;
   }
 
-  applyCasualties(army: Army, rate: number): Army {
-    const newArmy: Army = {};
-
-    for (const [unit, count] of Object.entries(army)) {
-      if (isUnitKey(unit)) {
-        newArmy[unit] = Math.max(0, Math.floor(count * (1 - rate)));
+  applyCasualties(
+    army: { type: UnitType; count: number }[],
+    rate: number,
+  ): { type: UnitType; count: number }[] {
+    return army.map((unit) => {
+      if (isUnitKey(unit.type)) {
+        return {
+          type: unit.type,
+          count: Math.max(0, Math.floor(unit.count * (1 - rate))),
+        };
       }
-    }
-
-    return newArmy;
+      return unit;
+    });
   }
 }

@@ -23,6 +23,11 @@ export class ArmyService {
     return { army: player.army };
   }
   async recruitUnit(userId: string, type: UnitType, count: number) {
+    const countNum = Number(count);
+    if (isNaN(countNum) || countNum <= 0) {
+      throw new Error('Invalid unit count');
+    }
+
     const player = await this.playerModel.findOne({
       user: new Types.ObjectId(userId),
     });
@@ -34,7 +39,7 @@ export class ArmyService {
     // Calculate total cost
     const totalCost = Object.entries(unit.cost).reduce(
       (acc, [res, cost]) => {
-        acc[res as ResourceType] = cost * count;
+        acc[res as ResourceType] = cost * countNum;
         return acc;
       },
       {} as Record<ResourceType, number>,
@@ -44,11 +49,11 @@ export class ArmyService {
     for (const [res, cost] of Object.entries(totalCost)) {
       if ((player.resources as any)[res] < cost) {
         this.logService.log(
-          `recruit unit${count > 1 ? 's' : ''} failed, not enough ${res}`,
+          `recruit unit${countNum > 1 ? 's' : ''} failed, not enough ${res}`,
           {
             userId,
             unitType: type,
-            count,
+            count: countNum,
             resources: player.resources,
             cost: totalCost,
             missingResource: res,
@@ -58,10 +63,10 @@ export class ArmyService {
       }
     }
 
-    this.logService.log(`recruit unit${count > 1 ? 's' : ''} successful`, {
+    this.logService.log(`recruit unit${countNum > 1 ? 's' : ''} successful`, {
       userId,
       unitType: type,
-      count,
+      count: countNum,
       resources: player.resources,
       cost: totalCost,
     });
@@ -72,14 +77,11 @@ export class ArmyService {
     }
 
     // Add or update army
-    if (!player.army) {
-      player.army = { [type]: count };
+    const existingUnit = player.army.find((u) => u.type === type);
+    if (existingUnit) {
+      existingUnit.count += countNum;
     } else {
-      if (player.army[type]) {
-        player.army[type] += count;
-      } else {
-        player.army[type] = count;
-      }
+      player.army.push({ type, count: countNum });
     }
 
     player.markModified('resources');

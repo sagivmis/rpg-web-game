@@ -177,7 +177,7 @@ export class AdminService {
       gold: 200,
     };
 
-    player.army = {};
+    player.army = [];
     player.buildings = [];
     player.lastTick = new Date();
 

@@ -50,6 +50,7 @@ export class PlayerService {
 
     return {
       resources: player.resources,
+      army: player.army,
       income,
       lastTick: player.lastTick,
       // ticks,
