@@ -5,4 +5,4 @@ export interface ArmyUnit {
   type: UnitType;
   count: number;
 }
-export type Army = Partial<Record<UnitType, number>>;
+export type Army = ArmyUnit[];
